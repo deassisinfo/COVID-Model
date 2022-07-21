@@ -36,6 +36,7 @@ random.seed(0)
 # Gasdermin = 0
 # Pyroptosis = 0
 # IL1 = 0
+# IL1R = 0
 # MLKL = 0
 # Necroptosis = 0
 # RIPK1_3 = 0
@@ -47,32 +48,38 @@ random.seed(0)
 # values represent indices, not boolean (x contain booleans at index positions)
 # find frequencies of cell death, see what you think what should be happening
 
-Virus,ACE2,PKC,ANG_2_T1R,ANG_2,ADAM_17,SIL6R,TLR4,RIG1,NFKB,TNF,IRF3,STAT1,ISG,C_FLIP,INF_A_B,NRLP3,CASP1,FOXO3A,IFNR,ProCASP8,DISC,BCL_2,tBID,Bax_Bak,CASP9,ROS,TNFR,FADD,Gasdermin,Pyroptosis,IL1,MLKL,Necroptosis,RIPK1_3,CASP8,ProCASP3_7,CASP3_7,Apoptosis = range(0,39)
+Virus,ACE2,PKC,ANG_2_T1R,ANG_2,ADAM_17,SIL6R,TLR4,RIG1,NFKB,TNF,IRF3,STAT1,ISG,C_FLIP,INF_A_B,NRLP3,CASP1,FOXO3A,IFNR,ProCASP8,DISC,BCL_2,tBID,Bax_Bak,CASP9,ROS,TNFR,FADD,Gasdermin,Pyroptosis,IL1,IL1R,MLKL,Necroptosis,RIPK1_3,CASP8,ProCASP3_7,CASP3_7,Apoptosis = range(0,40)
 #x = [Virus,ACE2,PKC,ANG_2_T1R,ANG_2,ADAM_17,SIL6R,TLR4,RIG1,NFKB,TNF,IRF3,STAT1,ISG,C_FLIP,INF_A_B,NRLP3,CASP1,FOXO3A,IFNR,ProCASP8,DISC,BCL_2,tBID,Bax_Bak,CASP9,ROS,TNFR,FADD,Gasdermin,Pyroptosis,IL1,MLKL,Necroptosis,RIPK1_3,CASP8,ProCASP3_7,CASP3_7,Apoptosis]
 #print(x)
 #x = np.random.randint(0,2,len(x))
 
-x = np.zeros(39)
+x = np.zeros(40)
 x[Virus] = 1
+x[TNF] = 0
 
 #print(x)
 x_begin = x.copy()
 
-r = random.sample(range(len(x)), len(x))
+# add receptor for IL1R and make it activate NFKB - done
+# find experiments that do this to confirm (grid search of genes array)
+
 n_iter = 25
 mat = np.zeros((n_iter + 1, len(x)))
 # future: add k loop with average values, reset before each loop, consider a cumulative matrix (divide by k iter)
 # consider simplification in the future, add negative feedback loops
 # got email that hipergator account will be deactivated
 for j in range(0, n_iter):
+    print(x)
+    r = random.sample(range(len(x)), len(x))
     for i in r:
         #print(x[r[i]]);
         if (i == Virus):
-            x[Virus] = not (x[STAT1] or x[RIG1]) and x[Virus]
+            x[Virus] = not (x[STAT1]) and x[Virus] # or x[RIG1]
+            #x[Virus] = 1
             # x[Virus] = 0 # possibly make virus = 0 
         if (i == ACE2):
             # PKC mediates ACE2 shedding from tubular cells
-            x[ACE2] = x[PKC]
+            x[ACE2] = x[PKC] and not x[ADAM_17]
             # x[ACE2] = not x[Virus] 
             # not sure about if there is a relation since Virus just relies on ACE2 to enter cells, the presence of ACE2 promotes disease prog
         if (i == PKC):
@@ -100,7 +107,7 @@ for j in range(0, n_iter):
             # antiviral activity of RIG-1 may comprise inhibition of viral entry into the host cell by preventing the expression of its receptor, ACE2
             # https://www.news-medical.net/news/20210215/RIG-1-like-receptors-may-play-dominant-role-in-suppressing-SARS-CoV-2-infection.aspx
         if (i == NFKB): 
-            x[NFKB] = x[ANG_2_T1R] or x[PKC] or x[RIG1] or x[C_FLIP] or x[TNFR]
+            x[NFKB] = x[C_FLIP] or x[TNFR] or x[IL1R] #x[ANG_2_T1R] or x[PKC] or x[RIG1] or
             # should be good, may need to find what exactly inhibits NFKB
             # common drug therapy is inhibiting NFKB (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7648206/)
         if (i == TNF):
@@ -112,7 +119,7 @@ for j in range(0, n_iter):
             # SARS-CoV-2 membrane protein binds to importin karyopherin subunit alpha-6 (KPNA6) to inhibit interferon regulatory factor 3(IRF3) nuclear translocation
             # https://www.frontiersin.org/articles/10.3389/fcimb.2021.766922/full
         if (i == STAT1):
-            x[STAT1] = x[ISG] or x[IFNR] and not x[Virus]
+            x[STAT1] = (x[ISG] or x[IFNR]) and not x[Virus]
             # After the infection, STAT1 activity is inhibited by the SARS-CoV-2 proteins, NSP1, and ORF6 
             # https://www.nature.com/articles/s41418-020-00633-7
         if (i == ISG):
@@ -122,7 +129,7 @@ for j in range(0, n_iter):
             x[C_FLIP] = x[NFKB] and not x[FOXO3A]
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4219646/
         if (i == INF_A_B):
-            x[INF_A_B] = x[IRF3]
+            x[INF_A_B] = x[IRF3] and not x[Virus]
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7995242/
         if (i == NRLP3):
             x[NRLP3] = x[NFKB]
@@ -132,7 +139,8 @@ for j in range(0, n_iter):
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6651423/
         if (i == FOXO3A):
             #x[FOXO3A] = x[Virus]
-            pass
+            # pass
+            x[FOXO3A] = x[FOXO3A]
             # no direct relation (drug targetting in place - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8187014/)
         if (i == IFNR):
             x[IFNR] = x[INF_A_B]
@@ -174,9 +182,11 @@ for j in range(0, n_iter):
             x[Pyroptosis] = x[Gasdermin]
             # https://www.nature.com/articles/s41467-019-09753-2
         if (i == IL1):
-            x[IL1] = x[MLKL]
+            x[IL1] = x[MLKL] or x[NFKB]
             # Look into this more later
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5321867/
+        if (i == IL1R):
+            x[IL1R] = x[IL1]
         if (i == MLKL):
             x[MLKL] = x[RIPK1_3] and not (x[NRLP3] or x[CASP1])
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5321867/
@@ -196,16 +206,16 @@ for j in range(0, n_iter):
             # https://pubmed.ncbi.nlm.nih.gov/9765224/
         if (i == CASP3_7):
             x[CASP3_7] = x[ProCASP3_7]
-            # obvious relationship based on naming
+            # obvious (trivial) relationship based on naming
         if (i == Apoptosis):
             x[Apoptosis] = x[CASP3_7]
             # https://pubmed.ncbi.nlm.nih.gov/10200555/
     mat[j,:]=x
-mat[n_iter, :] = np.average(mat,axis=0)
+mat[n_iter, :] = np.average(mat[0:n_iter-1,:],axis=0)
 print("Complete")
 yticklabels = [str(x) for x in range(1,n_iter + 1)]
 yticklabels.append("Average")
-xticklabels = ["Virus","ACE2","PKC","ANG_2_T1R","ANG_2","ADAM_17","SIL6R","TLR4","RIG1","NFKB","TNF","IRF3","STAT1","ISG","C_FLIP","INF_A_B","NRLP3","CASP1","FOXO3A","IFNR","ProCASP8","DISC","BCL_2","tBID","Bax_Bak","CASP9","ROS","TNFR","FADD","Gasdermin","Pyroptosis","IL1","MLKL","Necroptosis","RIPK1_3","CASP8","ProCASP3_7","CASP3_7","Apoptosis"]
+xticklabels = ["Virus","ACE2","PKC","ANG_2_T1R","ANG_2","ADAM_17","SIL6R","TLR4","RIG1","NFKB","TNF","IRF3","STAT1","ISG","C_FLIP","INF_A_B","NRLP3","CASP1","FOXO3A","IFNR","ProCASP8","DISC","BCL_2","tBID","Bax_Bak","CASP9","ROS","TNFR","FADD","Gasdermin","Pyroptosis","IL1","IL1R","MLKL","Necroptosis","RIPK1_3","CASP8","ProCASP3_7","CASP3_7","Apoptosis"]
 ax = sns.heatmap(mat, cmap="viridis", linewidths=.05, xticklabels=xticklabels, yticklabels=yticklabels)
 ax.tick_params(axis='y', which='major', labelsize= 10)
 
