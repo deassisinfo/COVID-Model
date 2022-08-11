@@ -59,7 +59,10 @@ for j in range(0, n_iter):
             x_dict[i] = x_dict["TNFR"] or x_dict["C_FLIP"] or x_dict["IL1R"] #x_dict["ANG_2_T1R"] or x_dict["PKC"] or x_dict["RIG1"] or
             # should be good, may need to find what exactly inhibits NFKB
             # common drug therapy is inhibiting NFKB (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7648206/")
-            ## NEW - not sure if "or" or "and"
+            
+            ############################## NEW ##############################
+            # not sure if "or" or "and"
+        
         if (i == "TNF"):
             x_dict[i] = x_dict["NFKB"]
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7114322/
@@ -88,7 +91,8 @@ for j in range(0, n_iter):
             x_dict[i] = x_dict["NRLP3"]
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6651423/
         if (i == "FOXO3A"):
-            x_dict[i] = x_dict["Virus"] ## SEE IF THIS IS CORRECT
+            x_dict[i] = x_dict["Virus"] 
+            ## this should be right if "Virus" causes stress
             #x_dict[i] = x_dict[i]
             # no direct relation (drug targetting in place - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8187014/")
         if (i == "IFNR"):
@@ -114,7 +118,7 @@ for j in range(0, n_iter):
             x_dict[i] = x_dict["Bax_Bak"]
             # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4219646/
         if (i == "ROS"):
-            x_dict[i] = external_dict["ROS_e"]
+            x_dict[i] = external_dict["ROS_e"] or x_dict["SIL6R"] ## new
             # x_dict["IL6"] or x_dict["ANG_2_T1R"]
 
             # apparently IL6 and ANG2R (by NOX) promotes ROS -- NEW
@@ -161,7 +165,8 @@ for j in range(0, n_iter):
             # read more later
             # https://www.sciencedirect.com/science/article/pii/S1097276514008661
         if (i == "CASP8"):
-            x_dict[i] =  (x_dict["FADD"] and x_dict["Virus"]) or x_dict["ROS"] or x_dict["DISC"]
+            x_dict[i] = x_dict["FADD"] and x_dict["ROS"] and x_dict["DISC"] 
+            #(x_dict["FADD"] and x_dict["Virus"]) or x_dict["ROS"] or x_dict["DISC"]
             # too many, will assume all is true, only certain drugs inhibit casp 8
         if (i == "ProCASP3_7"):
             x_dict[i] = x_dict["CASP8"]
